@@ -146,6 +146,7 @@ int main()
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
+        //cout<< "hello"<<endl;
     }
 
   });

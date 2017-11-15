@@ -29,8 +29,9 @@ public:
   MatrixXd P_;
 
   ///* predicted sigma points matrix
-  MatrixXd Xsig_pred_;
-
+  MatrixXd Xcub_pred_;
+ MatrixXd Xsig_pred_;
+    
   ///* time when the state is true, in us
   long long time_us_;
 
@@ -57,6 +58,7 @@ public:
 
   ///* Weights of sigma points
   VectorXd weights_;
+    VectorXd weights_cub_;
 
   ///* State dimension
   int n_x_;
@@ -67,6 +69,9 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+    // Set NIS
+   double  NIS_radar_ ;
+   double NIS_laser_ ;
 
   /**
    * Constructor
@@ -95,6 +100,12 @@ public:
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
+    
+    
+    
+    
+    
+    
   void UpdateLidar(MeasurementPackage meas_package);
 
   /**
