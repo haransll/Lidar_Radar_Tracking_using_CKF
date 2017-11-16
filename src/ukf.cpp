@@ -18,7 +18,7 @@ UKF::UKF() {
   use_laser_ = true;
 
   // if this is false, radar measurements will be ignored (except during init)
-  use_radar_ = false;
+  use_radar_ = true;
 
   // initial state vector
   x_ = VectorXd(5);
@@ -101,6 +101,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
      ****************************************************************************/
     if (!is_initialized_) {
         
+        x_<<1,1,1,1,0.1;
+        
         if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
             double rho = meas_package.raw_measurements_(0);
             double phi = meas_package.raw_measurements_(1);
@@ -108,27 +110,29 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
             // polar to cartesian - r * cos(angle) for x and r * sin(angle) for y
             // ***** Middle value for 'v' can be tuned *****
-            x_ << rho * cos(phi), rho * sin(phi), 4, rhodot * cos(phi), rhodot * sin(phi);
-
+            x_(0) = rho * cos(phi);
+            x_(1)= rho * sin(phi);
+      
             //state covariance matrix
             //***** values can be tuned *****
-            P_ << std_radr_*std_radr_, 0, 0, 0, 0,
-            0, std_radr_*std_radr_, 0, 0, 0,
+            P_ << 10*std_radr_*std_radr_, 0, 0, 0, 0,
+            0, 10*std_radr_*std_radr_, 0, 0, 0,
             0, 0, 1, 0, 0,
-            0, 0, 0, std_radphi_, 0,
-            0, 0, 0, 0, std_radphi_;
+            0, 0, 0, 1, 0,
+            0, 0, 0, 0, 1;
 
 
         }
         else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
             // Initialize state.
             // ***** Last three values below can be tuned *****
-            x_ << meas_package.raw_measurements_(0), meas_package.raw_measurements_(1), 4, 0.5, 0.0;
+            x_(0) = meas_package.raw_measurements_(0);
+            x_(1) = meas_package.raw_measurements_(1);
 
             //state covariance matrix
             //***** values can be tuned *****
-            P_ << std_laspx_*std_laspx_, 0, 0, 0, 0,
-            0, std_laspy_*std_laspy_, 0, 0, 0,
+            P_ << 10*std_laspx_*std_laspx_, 0, 0, 0, 0,
+            0, 10*std_laspy_*std_laspy_, 0, 0, 0,
             0, 0, 1, 0, 0,
             0, 0, 0, 1, 0,
             0, 0, 0, 0, 1;
@@ -153,7 +157,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     time_us_ = meas_package.timestamp_;
     //predict
  
-    cout<<"dt "<<dt<<endl;
+    //cout<<"dt "<<dt<<endl;
     // dt = 0.05;
     Prediction(dt);
     
@@ -175,8 +179,8 @@ void UKF::Prediction(double delta_t) {
     
     
     // Define spreading parameter for augmentation
-    //lambda_ = 3 - n_aug_;
-    lambda_ = 0;
+    lambda_ = 3 - n_aug_;
+    //lambda_ = 0;
     
     
     //create augmented mean vector
